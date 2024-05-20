@@ -23,8 +23,10 @@ class ExpandableListPage extends StatefulWidget {
 }
 
 class _ExpandableListPageState extends State<ExpandableListPage> {
-  
-  RangeValues _values = RangeValues(0.0, 100.0);
+ RangeValues _values = RangeValues(0.0, 100.0);
+  double min = 0.0;
+  double max = 100.0;
+
   final List<Course> courses = [
     Course(
       name: 'Course 1',
@@ -117,11 +119,23 @@ class _ExpandableListPageState extends State<ExpandableListPage> {
   ),
   child:  RangeSlider(
               values: _values,
-              min: 0.0,
-              max: 100.0,
+               min: min,
+              max: max,
               onChanged: (values) {
-                setState(() {
-                  _values = values;
+              setState(() {
+                  if (values.start <= values.end && values.start >= min && values.end <= max) {
+                    _values = values;
+                  } else {
+                    if (values.start > values.end) {
+                      _values = RangeValues(values.end, values.start);
+                    }
+                    if (values.start < min) {
+                      _values = RangeValues(min, values.end);
+                    }
+                    if (values.end > max) {
+                      _values = RangeValues(values.start, max);
+                    }
+                  }
                 });
               },
               divisions: 10,
