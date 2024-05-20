@@ -23,6 +23,8 @@ class ExpandableListPage extends StatefulWidget {
 }
 
 class _ExpandableListPageState extends State<ExpandableListPage> {
+  
+  RangeValues _values = RangeValues(0.0, 100.0);
   final List<Course> courses = [
     Course(
       name: 'Course 1',
@@ -90,29 +92,71 @@ class _ExpandableListPageState extends State<ExpandableListPage> {
       ),
       body: ListView(
         children: courses.map((course) {
-          return ExpansionTile(
-            title: Text(course.name),
-            children: course.details.map((detail) {
-              if (detail.classItem != null) {
-                return ExpansionTile(
-                  title: Text(detail.classItem!.className),
-                  children: detail.classItem!.students.map((student) {
-                    return CheckboxListTile(
-                      title: Text(student.name),
-                      subtitle: Text('Grade: ${student.grade}'),
-                      value: student.isChecked,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          student.isChecked = value!;
-                        });
-                      },
+          return Column(
+            children: [
+              Padding(
+          padding: EdgeInsets.all(16.0),
+          child: SliderTheme(
+  data: SliderTheme.of(context).copyWith(
+    activeTrackColor: Colors.red[700],
+    inactiveTrackColor: Colors.red[100],
+    trackShape: RoundedRectSliderTrackShape(),
+    trackHeight: 4.0,
+    thumbShape: RoundSliderThumbShape(enabledThumbRadius: 12.0),
+    thumbColor: Colors.redAccent,
+    overlayColor: Colors.red.withAlpha(32),
+    overlayShape: RoundSliderOverlayShape(overlayRadius: 28.0),
+    tickMarkShape: RoundSliderTickMarkShape(),
+    activeTickMarkColor: Colors.red[700],
+    inactiveTickMarkColor: Colors.red[100],
+    valueIndicatorShape: PaddleSliderValueIndicatorShape(),
+    valueIndicatorColor: Colors.redAccent,
+    valueIndicatorTextStyle: TextStyle(
+      color: Colors.white,
+    ),
+  ),
+  child:  RangeSlider(
+              values: _values,
+              min: 0.0,
+              max: 100.0,
+              onChanged: (values) {
+                setState(() {
+                  _values = values;
+                });
+              },
+              divisions: 10,
+              labels: RangeLabels(
+                _values.start.toString(),
+                _values.end.toString(),
+              ),
+            ),
+          ),
+),
+              ExpansionTile(
+                title: Text(course.name),
+                children: course.details.map((detail) {
+                  if (detail.classItem != null) {
+                    return ExpansionTile(
+                      title: Text(detail.classItem!.className),
+                      children: detail.classItem!.students.map((student) {
+                        return CheckboxListTile(
+                          title: Text(student.name),
+                          subtitle: Text('Grade: ${student.grade}'),
+                          value: student.isChecked,
+                          onChanged: (bool? value) {
+                            setState(() {
+                              student.isChecked = value!;
+                            });
+                          },
+                        );
+                      }).toList(),
                     );
-                  }).toList(),
-                );
-              } else {
-                return SizedBox.shrink();
-              }
-            }).toList(),
+                  } else {
+                    return SizedBox.shrink();
+                  }
+                }).toList(),
+              ),
+            ],
           );
         }).toList(),
       ),
