@@ -23,10 +23,6 @@ class ExpandableListPage extends StatefulWidget {
 }
 
 class _ExpandableListPageState extends State<ExpandableListPage> {
-  RangeValues _values = RangeValues(0.0, 100.0);
-  double min = 0.0;
-  double max = 100.0;
-
   final List<ClassItem> classes = [
     ClassItem(
       className: 'Class A',
@@ -67,6 +63,7 @@ class _ExpandableListPageState extends State<ExpandableListPage> {
   ];
 
   List<List<int>> selectedData = [];
+  List<List<dynamic>> allStudentsData = [];
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +73,6 @@ class _ExpandableListPageState extends State<ExpandableListPage> {
       ),
       body: ListView(
         children: [
-        
           ...classes.map((classItem) {
             return ExpansionTile(
               title: Text(classItem.className),
@@ -96,48 +92,91 @@ class _ExpandableListPageState extends State<ExpandableListPage> {
           }).toList(),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          selectedData = [];
-          for (var classItem in classes) {
-            List<int> selectedStudents = [];
-            for (var student in classItem.students) {
-              if (student.isChecked) {
-                selectedStudents.add(student.studentId);
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () {
+              selectedData = [];
+              for (var classItem in classes) {
+                List<int> selectedStudents = [];
+                for (var student in classItem.students) {
+                  if (student.isChecked) {
+                    selectedStudents.add(student.studentId);
+                  }
+                }
+                if (selectedStudents.isNotEmpty) {
+                  selectedData.add([classItem.classId, ...selectedStudents]);
+                }
               }
-            }
-            if (selectedStudents.isNotEmpty) {
-              selectedData.add([classItem.classId, ...selectedStudents]);
-            }
-          }
 
-          print(selectedData);
+              print(selectedData);
 
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text('Selected Data'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: selectedData.map((data) {
-                    return Text('${data[0]}: ${data.sublist(1).join(', ')}');
-                  }).toList(),
-                ),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('OK'),
-                  ),
-                ],
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Selected Data'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: selectedData.map((data) {
+                        return Text('${data[0]}: ${data.sublist(1).join(', ')}');
+                      }).toList(),
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('OK'),
+                      ),
+                    ],
+                  );
+                },
               );
             },
-          );
-        },
-        child: Icon(Icons.check),
+            child: Icon(Icons.check),
+            tooltip: 'Show Selected Data',
+          ),
+          SizedBox(height: 16),
+          FloatingActionButton(
+            onPressed: () {
+              allStudentsData = [];
+              for (var classItem in classes) {
+                for (var student in classItem.students) {
+                  allStudentsData.add([student.name, student.studentId]);
+                }
+              }
+
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('All Students Data'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: allStudentsData.map((data) {
+                        return Text('${data[0]} (ID: ${data[1]})');
+                      }).toList(),
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('OK'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child: Icon(Icons.list),
+            tooltip: 'Show All Students Data',
+          ),
+        ],
       ),
     );
   }
